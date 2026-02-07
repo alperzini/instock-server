@@ -1,5 +1,6 @@
 import "dotenv/config"; // Loads environment variables
 import express from "express"; // ESM import
+import warehouseRoutes from "./src/routes/warehouses.js"
 
 const app = express(); // Create express instance
 
@@ -12,6 +13,11 @@ app.use(express.json());
 app.get("/", (req, res) => {
     res.send("Hello Team Merkaats");
 });
+
+// warehouseRoutes
+app.use("/warehouses", warehouseRoutes);
+
+
 
 // Start server
 // node server.js
