@@ -6,6 +6,7 @@ const router = Router();
 
 // GET /warehouses
 
+
 export const getAllWarehouses = async (req, res) => {
     try {
         const [rows] = await db.query("SELECT * FROM warehouses")
