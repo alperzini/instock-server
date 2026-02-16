@@ -1,12 +1,16 @@
 import "dotenv/config"; // Loads environment variables
 import express from "express"; // ESM import
 import warehouseRoutes from "./src/routes/warehouses.js"
+import cors from "cors";
+
+
 
 const app = express(); // Create express instance
 
 const PORT = process.env.PORT || 8080;
 
 // Middleware to parse JSON request bodies
+app.use(cors());
 app.use(express.json());
 
 // Define a simple route
