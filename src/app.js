@@ -1,5 +1,6 @@
 import express from "express";
 import cors from "cors"; 
+import warehouseRoutes from "./routes/warehouses.js";
 /*
 import ... from "./routes/...";
 import ... from "./routes/...";
@@ -14,6 +15,9 @@ app.use(express.json()); //important for parsing JSON request bodies POST and PU
 app.use("/...", ...);
 app.use("/...", ...);
 */
+
+app.use("/warehouses", warehouseRoutes);
+
 
 export default app;
 
