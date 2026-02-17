@@ -1,4 +1,3 @@
-import express from "express";
 import { Router } from "express";
 import db from "../db/db.js";
 
@@ -31,7 +30,7 @@ export const getWarehouseById = async (req, res) => {
         res.json(rows[0]);
     } catch (err) {
         console.error(err);
-        res.status(500).json({ message: "Failed to fetch warehouse "})
+        res.status(500).json({ message: "Failed to fetch warehouse"})
     }
 }
 
