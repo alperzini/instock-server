@@ -47,7 +47,7 @@ export const addInventory = async (req, res) => {
             return res.status(400).json("Please enter the item category.");
         else if (!status)
             return res.status(400).json("Please enter the status of the item.");
-        else if (!quantity)
+        else if (quantity === null || quantity === undefined || quantity === "") // Accept 0 for quantity
             return res.status(400).json("Please enter the item quantity.");
 
         // quantity must be a number
