@@ -52,7 +52,7 @@ export const addInventory = async (req, res) => {
 
         // quantity must be a number
         const quantityNum = Number(quantity);
-        if (isNaN(quantityNum) || !Number.isInteger(quantityNum)  || quantityNum < 0)
+        if (isNaN(quantityNum) || !Number.isInteger(quantityNum) || quantityNum < 0)
             return res.status(400).json("The item quantity must be a positive integer number.");
 
         // Check warehouse_id matches an existing warehouse
@@ -135,9 +135,30 @@ export const updateInventory = async (req, res) => {
         });
     } catch (err) {
         console.error(err);
-        return res.status(500).json("Failed to update inventory." );
+        return res.status(500).json("Failed to update inventory.");
     }
 };
 router.patch("/:id", updateInventory);
+
+// Delete /inventories/:id
+export const deleteInventory = async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        // ensure that inventory exists
+        const [existing] = await db.query("SELECT * FROM inventories WHERE id = ?;", id);
+        if (existing.length === 0)
+            return res.status(404).json("Inventory is not found.");
+
+        // DB delete
+        await db.query(`DELETE FROM inventories WHERE id = ?;`, id);
+
+        return res.status(204).end();
+    } catch (err) {
+        console.error(err);
+        return res.status(500).json("Failed to delete inventory.");
+    }
+};
+router.delete("/:id", deleteInventory);
 
 export default router;
