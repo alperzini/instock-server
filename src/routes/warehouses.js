@@ -68,7 +68,7 @@ export const addWarehouse = async (req, res) => {
     }
 }
 
-// POST /warehouse
+// POST /warehouses
 router.post("/", addWarehouse);
 
 
