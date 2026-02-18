@@ -127,14 +127,14 @@ export const updateWarehouse = async (req, res) => {
                  contact_email = ?
              WHERE id = ?`,
             [
-                warehouse_name ?? existing[0].warehouse_name,
-                address ?? existing[0].address,
-                city ?? existing[0].city,
-                country ?? existing[0].country,
-                contact_name ?? existing[0].contact_name,
-                contact_position ?? existing[0].contact_position,
-                contact_phone ?? existing[0].contact_phone,
-                contact_email ?? existing[0].contact_email,
+                warehouse_name || existing[0].warehouse_name,
+                address || existing[0].address,
+                city || existing[0].city,
+                country || existing[0].country,
+                contact_name || existing[0].contact_name,
+                contact_position || existing[0].contact_position,
+                contact_phone || existing[0].contact_phone,
+                contact_email || existing[0].contact_email,
                 id
             ]
         );
@@ -152,7 +152,7 @@ export const updateWarehouse = async (req, res) => {
         return res.status(500).json({ message: "Failed to update warehouse" });
     }
 };
-
+// Patch /warehouses/:id
 router.patch("/:id", updateWarehouse);
 
 

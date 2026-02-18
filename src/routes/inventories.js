@@ -52,8 +52,8 @@ export const addInventory = async (req, res) => {
 
         // quantity must be a number
         const quantityNum = Number(quantity);
-        if (isNaN(quantityNum) || !Number.isInteger(quantityNum))
-            return res.status(400).json("The item quantity must be an integer number.");
+        if (isNaN(quantityNum) || !Number.isInteger(quantityNum)  || quantityNum < 0)
+            return res.status(400).json("The item quantity must be a positive integer number.");
 
         // Check warehouse_id matches an existing warehouse
         const [rows] = await db.query("SELECT id FROM warehouses WHERE id = ?;", [warehouse_id]);
@@ -82,5 +82,62 @@ export const addInventory = async (req, res) => {
     }
 }
 router.post("/", addInventory);
+
+// Patch /inventories/:id
+export const updateInventory = async (req, res) => {
+    const { id } = req.params;
+    const { warehouse_id, item_name, description, category, status, quantity } = req.body;
+
+    try {
+        // ensure that inventory exists
+        const [existing] = await db.query("SELECT * FROM inventories WHERE id = ?;", [id]);
+        if (existing.length === 0)
+            return res.status(404).json("Inventory is not found.");
+
+        // quantity must be a number
+        if (quantity) { // Otherwise get exisitng quantity
+            const quantityNum = Number(quantity);
+            if (isNaN(quantityNum) || !Number.isInteger(quantityNum) || quantityNum < 0)
+                return res.status(400).json("The item quantity must be a positive integer number.");
+        }
+
+        // Check warehouse_id matches an existing warehouse
+        if (warehouse_id) { // Otherwise get exisitng warehouse_id
+            const [rows] = await db.query("SELECT id FROM warehouses WHERE id = ?;", [warehouse_id]);
+            if (rows.length === 0)
+                return res.status(400).json("Warehouse is not found.");
+        }
+
+        // DB update
+        const today = new Date().toISOString().replace('T', ' ').split('.')[0];
+        await db.query(
+            `UPDATE inventories 
+             SET warehouse_id = ?, item_name = ?, description = ?, category = ?, status = ?, quantity = ?, updated_at = ?
+             WHERE id = ?;`,
+            [
+                warehouse_id || existing[0].warehouse_id,
+                item_name || existing[0].item_name,
+                description || existing[0].description,
+                category || existing[0].category,
+                status || existing[0].status,
+                quantity || existing[0].quantity,
+                today,
+                id
+            ]
+        );
+
+        // Get newly updated inventory
+        const [updated] = await db.query("SELECT * FROM inventories WHERE id = ?", [id]);
+
+        return res.status(200).json({
+            message: "Inventory updated successfully.",
+            data: updated[0]
+        });
+    } catch (err) {
+        console.error(err);
+        return res.status(500).json("Failed to update inventory." );
+    }
+};
+router.patch("/:id", updateInventory);
 
 export default router;
