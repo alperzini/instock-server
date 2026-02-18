@@ -155,7 +155,26 @@ export const updateWarehouse = async (req, res) => {
 // Patch /warehouses/:id
 router.patch("/:id", updateWarehouse);
 
+// Delete /warehouses/:id
+export const deleteWarehouse = async (req, res) => {
+    const { id } = req.params;
 
+    try {
+        // ensure that warehouse exists
+        const [existing] = await db.query("SELECT * FROM warehouses WHERE id = ?;", id);
+        if (existing.length === 0)
+            return res.status(404).json("Warehouse is not found.");
+
+        // DB delete
+        await db.query(`DELETE FROM warehouses WHERE id = ?;`, id);
+
+        return res.status(204).end();
+    } catch (err) {
+        console.error(err);
+        return res.status(500).json("Failed to delete warehouse.");
+    }
+};
+router.delete("/:id", deleteWarehouse);
 
 export default router;
 
