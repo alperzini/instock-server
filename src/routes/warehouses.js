@@ -176,6 +176,23 @@ export const deleteWarehouse = async (req, res) => {
 };
 router.delete("/:id", deleteWarehouse);
 
+// GET /warehouses/:id/inventories
+export const getWarehouseInventoryList = async (req, res) => {
+    const { id } = req.params;
+    try {
+        const [rows] = await db.query("SELECT id, item_name, category, status, quantity FROM inventories WHERE warehouse_id = ?;", [id]);
+
+        if (rows.length === 0) {
+            return res.status(404).json("Warehouse not found");
+        }
+        res.json(rows);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json("Failed to fetch warehouse inventory list");
+    }
+}
+router.get("/:id/inventories", getWarehouseInventoryList);
+
 export default router;
 
 /* API Testing

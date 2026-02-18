@@ -10,7 +10,7 @@ export const getAllInventories = async (req, res) => {
         res.json(rows);
     } catch (err) {
         console.error(err);
-        res.status(500).json({ message: "Failed to fetch inventories" });
+        res.status(500).json("Failed to fetch inventories" );
     }
 }
 router.get("/", getAllInventories);
@@ -22,12 +22,12 @@ export const getInventoryById = async (req, res) => {
         const [rows] = await db.query("SELECT * FROM inventories WHERE id = ?;", [id]);
 
         if (rows.length === 0) {
-            return res.status(404).json({ message: "Inventory not found" });
+            return res.status(404).json("Inventory not found" );
         }
         res.json(rows[0]);
     } catch (err) {
         console.error(err);
-        res.status(500).json({ message: "Failed to fetch inventory" })
+        res.status(500).json("Failed to fetch inventory" )
     }
 }
 router.get("/:id", getInventoryById);
