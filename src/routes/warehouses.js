@@ -30,7 +30,7 @@ export const getWarehouseById = async (req, res) => {
         res.json(rows[0]);
     } catch (err) {
         console.error(err);
-        res.status(500).json({ message: "Failed to fetch warehouse"})
+        res.status(500).json({ message: "Failed to fetch warehouse" })
     }
 }
 
@@ -40,8 +40,26 @@ router.get("/:id", getWarehouseById);
 // create a new warehouse (POST)
 
 export const addWarehouse = async (req, res) => {
-    const { id, warehouse_name, address, city, country, contact_name, contact_position, contact_phone, contact_email } = req.body;
+    const { warehouse_name, address, city, country, contact_name, contact_position, contact_phone, contact_email } = req.body;
     try {
+
+        // All values are required
+        if (!warehouse_name)
+            return res.status(400).json("Please enter the warehouse name.");
+        else if (!address)
+            return res.status(400).json("Please enter the warehouse address.");
+        else if (!city)
+            return res.status(400).json("Please enter the warehouse city.");
+        else if (!country)
+            return res.status(400).json("Please enter the warehouse country.");
+        else if (!contact_name)
+            return res.status(400).json("Please enter the warehouse contact name.");
+        else if (!contact_position)
+            return res.status(400).json("Please enter the warehouse contact position.");
+        else if (!contact_phone)
+            return res.status(400).json("Please enter the warehouse contact phone number.");
+        else if (!contact_email)
+            return res.status(400).json("Please enter the warehouse contact email.");
 
         // Email Validation 
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -50,24 +68,32 @@ export const addWarehouse = async (req, res) => {
         }
 
         // Phone Validation
-        // Allow: 123-456-7890, (123)456-7890, +1 604 123 4567, 6041234567, etc.
-        const cleanPhone = contact_phone.replace(/\D/g, ""); // remove non-numbers
-
-        if (cleanPhone.length < 10 || cleanPhone.length > 15) {
+        const phoneRegex = /^(?:\+1|1?)?\s?(\(\d{3}\)|\d{3})[-.\s]?(\(\d{3}\)|\d{3})[-.\s]?(\(\d{4}\)|\d{4})$/;
+        if (!phoneRegex.test(contact_phone)) {
             return res.status(400).json({ message: "Please enter a valid phone number" });
         }
 
         // DB Insert
-        await db.query("INSERT INTO warehouses (id, warehouse_name, address, city, country, contact_name, contact_position, contact_phone, contact_email) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", [id, warehouse_name, address, city, country, contact_name, contact_position, contact_phone, contact_email]);
+        const today = new Date().toISOString().replace('T', ' ').split('.')[0];
+        await db.query(`INSERT INTO warehouses 
+            (warehouse_name, address, city, country, contact_name, contact_position, contact_phone, contact_email, created_at, updated_at) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            [warehouse_name, address, city, country, contact_name, contact_position, contact_phone, contact_email, today, today]);
 
-        return res.status(201).json({ 
-            message: "Warehouse created successfully" 
+        // Get ID of newly inserted warehouse
+        let [id] = await db.query("SELECT LAST_INSERT_ID();");
+        id = id[0]['LAST_INSERT_ID()'];
+        const [created] = await db.query("SELECT * FROM warehouses WHERE id = ?;", [id]);
+
+        return res.status(201).json({
+            message: "Warehouse created successfully",
+            data: created[0]
         });
     } catch (err) {
+        console.error(err);
         res.status(500).json({ message: "Failed to create warehouse" });
     }
 }
-
 // POST /warehouses
 router.post("/", addWarehouse);
 
@@ -93,7 +119,7 @@ export const updateWarehouse = async (req, res) => {
         );
 
         if (existing.length === 0) {
-            return res.status(404).json({ message: "Warehouse not found"});
+            return res.status(404).json({ message: "Warehouse not found" });
         }
 
 
