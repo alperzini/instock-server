@@ -110,6 +110,7 @@ export const updateInventory = async (req, res) => {
 
         // DB update
         const today = new Date().toISOString().replace('T', ' ').split('.')[0];
+        if (quantity === "") quantity = existing[0].quantity; // Handle edge case of quantity = 0
         await db.query(
             `UPDATE inventories 
              SET warehouse_id = ?, item_name = ?, description = ?, category = ?, status = ?, quantity = ?, updated_at = ?
@@ -120,7 +121,7 @@ export const updateInventory = async (req, res) => {
                 description || existing[0].description,
                 category || existing[0].category,
                 status || existing[0].status,
-                quantity || existing[0].quantity,
+                quantity,
                 today,
                 id
             ]
