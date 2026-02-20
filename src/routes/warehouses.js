@@ -39,61 +39,92 @@ router.get("/:id", getWarehouseById);
 
 // create a new warehouse (POST)
 
+// CREATE a new warehouse (POST)
 export const addWarehouse = async (req, res) => {
-    const { warehouse_name, address, city, country, contact_name, contact_position, contact_phone, contact_email } = req.body;
+    const {
+        warehouse_name,
+        address,
+        city,
+        country,
+        contact_name,
+        contact_position,
+        contact_phone,
+        contact_email
+    } = req.body;
+
     try {
-
-        // All values are required
         if (!warehouse_name)
-            return res.status(400).json("Please enter the warehouse name.");
-        else if (!address)
-            return res.status(400).json("Please enter the warehouse address.");
-        else if (!city)
-            return res.status(400).json("Please enter the warehouse city.");
-        else if (!country)
-            return res.status(400).json("Please enter the warehouse country.");
-        else if (!contact_name)
-            return res.status(400).json("Please enter the warehouse contact name.");
-        else if (!contact_position)
-            return res.status(400).json("Please enter the warehouse contact position.");
-        else if (!contact_phone)
-            return res.status(400).json("Please enter the warehouse contact phone number.");
-        else if (!contact_email)
-            return res.status(400).json("Please enter the warehouse contact email.");
+            return res.status(400).json({ message: "Please enter the warehouse name." });
+        if (!address)
+            return res.status(400).json({ message: "Please enter the warehouse address." });
+        if (!city)
+            return res.status(400).json({ message: "Please enter the warehouse city." });
+        if (!country)
+            return res.status(400).json({ message: "Please enter the warehouse country." });
+        if (!contact_name)
+            return res.status(400).json({ message: "Please enter the contact name." });
+        if (!contact_position)
+            return res.status(400).json({ message: "Please enter the contact position." });
+        if (!contact_phone)
+            return res.status(400).json({ message: "Please enter the contact phone number." });
+        if (!contact_email)
+            return res.status(400).json({ message: "Please enter the contact email." });
 
-        // Email Validation 
+        // Email Validation
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(contact_email)) {
             return res.status(400).json({ message: "Please enter a valid email address" });
         }
 
         // Phone Validation
-        const phoneRegex = /^(?:\+1|1?)?\s?(\(\d{3}\)|\d{3})[-.\s]?(\(\d{3}\)|\d{3})[-.\s]?(\(\d{4}\)|\d{4})$/;
-        if (!phoneRegex.test(contact_phone)) {
+        const phoneRegex = /^(?:\+1|1?)?\s?(\(\d{3}\)|\d{3})[-.\s]?(\d{3})[-.\s]?(\d{4})$/;
+        const cleanPhone = contact_phone.replace(/\D/g, "");
+
+        if (cleanPhone.length < 10 || cleanPhone.length > 15 || !phoneRegex.test(contact_phone)) {
             return res.status(400).json({ message: "Please enter a valid phone number" });
         }
 
-        // DB Insert
-        const today = new Date().toISOString().replace('T', ' ').split('.')[0];
-        await db.query(`INSERT INTO warehouses 
-            (warehouse_name, address, city, country, contact_name, contact_position, contact_phone, contact_email, created_at, updated_at) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);`,
-            [warehouse_name, address, city, country, contact_name, contact_position, contact_phone, contact_email, today, today]);
+  
+        // Insert Into Database
+        const timestamp = new Date().toISOString().slice(0, 19).replace("T", " ");
 
-        // Get ID of newly inserted warehouse
-        let [id] = await db.query("SELECT LAST_INSERT_ID();");
-        id = id[0]['LAST_INSERT_ID()'];
-        const [created] = await db.query("SELECT * FROM warehouses WHERE id = ?;", [id]);
+        await db.query(
+            `INSERT INTO warehouses 
+            (warehouse_name, address, city, country, contact_name, contact_position, contact_phone, contact_email, created_at, updated_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            [
+                warehouse_name,
+                address,
+                city,
+                country,
+                contact_name,
+                contact_position,
+                contact_phone,
+                contact_email,
+                timestamp,
+                timestamp
+            ]
+        );
+
+        // Retrive the created row
+        const [rows] = await db.query("SELECT LAST_INSERT_ID() AS id;");
+        const newId = rows[0].id;
+
+        const [created] = await db.query(
+            "SELECT * FROM warehouses WHERE id = ?;",
+            [newId]
+        );
 
         return res.status(201).json({
             message: "Warehouse created successfully",
             data: created[0]
         });
+
     } catch (err) {
         console.error(err);
-        res.status(500).json({ message: "Failed to create warehouse" });
+        return res.status(500).json({ message: "Failed to create warehouse" });
     }
-}
+};
 // POST /warehouses
 router.post("/", addWarehouse);
 
