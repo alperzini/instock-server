@@ -37,7 +37,6 @@ export const getWarehouseById = async (req, res) => {
 
 router.get("/:id", getWarehouseById);
 
-
 // create a new warehouse (POST)
 
 export const addWarehouse = async (req, res) => {
