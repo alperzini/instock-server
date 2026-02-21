@@ -76,8 +76,8 @@ export const addWarehouse = async (req, res) => {
 
         // Phone Validation
         const phoneRegex = /^(?:\+1|1?)?\s?(\(\d{3}\)|\d{3})[-.\s]?(\(\d{3}\)|\d{3})[-.\s]?(\(\d{4}\)|\d{4})$/;
-        if (!phoneRegex.test(formData.contact_phone)) {
-            newErrors.contact_phone = "Please enter a valid phone number";
+        if (!phoneRegex.test(contact_phone)) {
+            return res.status(400).json({ message: "Please enter a valid phone number" });
         }
 
         // Insert Into Database
