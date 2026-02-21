@@ -20,8 +20,8 @@ router.get("/", getAllWarehouses);
 // GET /warehouses/:id
 
 export const getWarehouseById = async (req, res) => {
-    const { id } = req.params;
     try {
+        const { id } = req.params;
         const [rows] = await db.query("SELECT * FROM warehouses WHERE id = ?;", [id]);
 
         if (rows.length === 0) {
@@ -39,18 +39,18 @@ router.get("/:id", getWarehouseById);
 
 // create a new warehouse (POST)
 export const addWarehouse = async (req, res) => {
-    const {
-        warehouse_name,
-        address,
-        city,
-        country,
-        contact_name,
-        contact_position,
-        contact_phone,
-        contact_email
-    } = req.body;
-
     try {
+        const {
+            warehouse_name,
+            address,
+            city,
+            country,
+            contact_name,
+            contact_position,
+            contact_phone,
+            contact_email
+        } = req.body;
+
         if (!warehouse_name)
             return res.status(400).json({ message: "Please enter the warehouse name." });
         if (!address)
@@ -76,9 +76,9 @@ export const addWarehouse = async (req, res) => {
 
         // Phone Validation
         const phoneRegex = /^(?:\+1|1?)?\s?(\(\d{3}\)|\d{3})[-.\s]?(\(\d{3}\)|\d{3})[-.\s]?(\(\d{4}\)|\d{4})$/;
-            if (!phoneRegex.test(formData.contact_phone)) {
-                newErrors.contact_phone = "Please enter a valid phone number";
-            }
+        if (!phoneRegex.test(formData.contact_phone)) {
+            newErrors.contact_phone = "Please enter a valid phone number";
+        }
 
         // Insert Into Database
         const timestamp = new Date().toISOString().slice(0, 19).replace("T", " ");
@@ -127,9 +127,8 @@ router.post("/", addWarehouse);
 // update the warehouse (PATCH) 
 export const updateWarehouse = async (req, res) => {
     try {
-            const { id } = req.params;
-            const { warehouse_name, address, city, country, contact_name, contact_position, contact_phone, contact_email } = req.body;
-
+        const { id } = req.params;
+        const { warehouse_name, address, city, country, contact_name, contact_position, contact_phone, contact_email } = req.body;
 
         // ensure that warehouse exist
         const [existing] = await db.query("SELECT * FROM warehouses WHERE id = ?;", [id]);

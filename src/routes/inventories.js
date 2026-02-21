@@ -10,32 +10,32 @@ export const getAllInventories = async (req, res) => {
         res.json(rows);
     } catch (err) {
         console.error(err);
-        res.status(500).json("Failed to fetch inventories" );
+        res.status(500).json("Failed to fetch inventories");
     }
 }
 router.get("/", getAllInventories);
 
 // GET /inventories/:id
 export const getInventoryById = async (req, res) => {
-    const { id } = req.params;
     try {
+        const { id } = req.params;
         const [rows] = await db.query("SELECT * FROM inventories WHERE id = ?;", [id]);
 
         if (rows.length === 0) {
-            return res.status(404).json("Inventory not found" );
+            return res.status(404).json("Inventory not found");
         }
         res.json(rows[0]);
     } catch (err) {
         console.error(err);
-        res.status(500).json("Failed to fetch inventory" )
+        res.status(500).json("Failed to fetch inventory")
     }
 }
 router.get("/:id", getInventoryById);
 
 // POST /inventories
 export const addInventory = async (req, res) => {
-    const { warehouse_id, item_name, description, category, status, quantity } = req.body;
     try {
+        const { warehouse_id, item_name, description, category, status, quantity } = req.body;
         // All values are required
         if (!warehouse_id)
             return res.status(400).json("Warehouse is not specified.");
@@ -85,10 +85,10 @@ router.post("/", addInventory);
 
 // Patch /inventories/:id
 export const updateInventory = async (req, res) => {
-    const { id } = req.params;
-    const { warehouse_id, item_name, description, category, status, quantity } = req.body;
-
     try {
+        const { id } = req.params;
+        const { warehouse_id, item_name, description, category, status, quantity } = req.body;
+
         // ensure that inventory exists
         const [existing] = await db.query("SELECT * FROM inventories WHERE id = ?;", [id]);
         if (existing.length === 0)
@@ -110,7 +110,7 @@ export const updateInventory = async (req, res) => {
 
         // DB update
         const today = new Date().toISOString().replace('T', ' ').split('.')[0];
-        if (quantity === "") quantity = existing[0].quantity; // Handle edge case of quantity = 0
+        if (quantity === "") quantity = existing[0].quantity; // Handle edge case of quantity = 0 | ""
         await db.query(
             `UPDATE inventories 
              SET warehouse_id = ?, item_name = ?, description = ?, category = ?, status = ?, quantity = ?, updated_at = ?
@@ -143,9 +143,9 @@ router.patch("/:id", updateInventory);
 
 // Delete /inventories/:id
 export const deleteInventory = async (req, res) => {
-    const { id } = req.params;
-
     try {
+        const { id } = req.params;
+
         // ensure that inventory exists
         const [existing] = await db.query("SELECT * FROM inventories WHERE id = ?;", id);
         if (existing.length === 0)
