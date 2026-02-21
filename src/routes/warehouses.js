@@ -38,8 +38,6 @@ router.get("/:id", getWarehouseById);
 
 
 // create a new warehouse (POST)
-
-// CREATE a new warehouse (POST)
 export const addWarehouse = async (req, res) => {
     const {
         warehouse_name,
@@ -77,14 +75,11 @@ export const addWarehouse = async (req, res) => {
         }
 
         // Phone Validation
-        const phoneRegex = /^(?:\+1|1?)?\s?(\(\d{3}\)|\d{3})[-.\s]?(\d{3})[-.\s]?(\d{4})$/;
-        const cleanPhone = contact_phone.replace(/\D/g, "");
+        const phoneRegex = /^(?:\+1|1?)?\s?(\(\d{3}\)|\d{3})[-.\s]?(\(\d{3}\)|\d{3})[-.\s]?(\(\d{4}\)|\d{4})$/;
+            if (!phoneRegex.test(formData.contact_phone)) {
+                newErrors.contact_phone = "Please enter a valid phone number";
+            }
 
-        if (cleanPhone.length < 10 || cleanPhone.length > 15 || !phoneRegex.test(contact_phone)) {
-            return res.status(400).json({ message: "Please enter a valid phone number" });
-        }
-
-  
         // Insert Into Database
         const timestamp = new Date().toISOString().slice(0, 19).replace("T", " ");
 
@@ -131,10 +126,11 @@ router.post("/", addWarehouse);
 
 // update the warehouse (PATCH) 
 export const updateWarehouse = async (req, res) => {
-    const { id } = req.params;
-    const { warehouse_name, address, city, country, contact_name, contact_position, contact_phone, contact_email } = req.body;
-
     try {
+            const { id } = req.params;
+            const { warehouse_name, address, city, country, contact_name, contact_position, contact_phone, contact_email } = req.body;
+
+
         // ensure that warehouse exist
         const [existing] = await db.query("SELECT * FROM warehouses WHERE id = ?;", [id]);
 
@@ -203,9 +199,9 @@ router.patch("/:id", updateWarehouse);
 
 // Delete /warehouses/:id
 export const deleteWarehouse = async (req, res) => {
-    const { id } = req.params;
 
     try {
+        const { id } = req.params;
         // ensure that warehouse exists
         const [existing] = await db.query("SELECT * FROM warehouses WHERE id = ?;", id);
         if (existing.length === 0)
@@ -224,8 +220,8 @@ router.delete("/:id", deleteWarehouse);
 
 // GET /warehouses/:id/inventories
 export const getWarehouseInventoryList = async (req, res) => {
-    const { id } = req.params;
     try {
+        const { id } = req.params;
         const [rows] = await db.query("SELECT id, item_name, category, status, quantity FROM inventories WHERE warehouse_id = ?;", [id]);
 
         if (rows.length === 0) {
